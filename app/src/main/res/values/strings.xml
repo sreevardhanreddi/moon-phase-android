@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Moon Phase</string>
+    <string name="loading">Loading…</string>
+    <string name="widget_1x1_name">Moon Phase (1x1)</string>
+    <string name="widget_1x1_description">Tiny moon phase widget with tithi (1x1)</string>
+    <string name="widget_small_description">Small moon phase widget (2x1)</string>
+    <string name="widget_3x1_description">Moon phase widget with tithi and illumination (3x1)</string>
+    <string name="widget_4x1_description">Wide moon phase widget with full info (4x1)</string>
+    <string name="widget_medium_description">Square moon phase widget (2x2)</string>
+    <string name="widget_large_description">Large moon phase widget (4x2)</string>
+    <string name="widget_small_name">Moon Phase (2x1)</string>
+    <string name="widget_3x1_name">Moon Phase (3x1)</string>
+    <string name="widget_4x1_name">Moon Phase (4x1)</string>
+    <string name="widget_medium_name">Moon Phase (2x2)</string>
+    <string name="widget_large_name">Moon Phase (4x2)</string>
+</resources>
