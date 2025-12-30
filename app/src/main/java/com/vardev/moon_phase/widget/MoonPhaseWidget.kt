@@ -205,6 +205,7 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
     val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
     val phaseShort = getWidgetPhaseName(moonData, namingMode, isWaxing)
+    val moonAgeText = "%.1f days".format(moonData.moonAge)
 
     Row(
         modifier = GlanceModifier
@@ -229,6 +230,12 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
                 )
             )
             Text(
+                text = moonAgeText,
+                style = TextStyle(
+                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
+                )
+            )
+            Text(
                 text = "${moonData.illuminationPercent}% ($phaseShort)",
                 style = TextStyle(
                     color = ColorProvider(getWidgetAccentColor(isDarkTheme))
@@ -246,6 +253,7 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
     val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
     val phaseShort = getWidgetPhaseName(moonData, namingMode, isWaxing)
+    val moonAgeText = "%.1f days".format(moonData.moonAge)
 
     Row(
         modifier = GlanceModifier
@@ -267,6 +275,12 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
                 style = TextStyle(
                     color = ColorProvider(getWidgetTextColor(isDarkTheme)),
                     fontWeight = FontWeight.Bold
+                )
+            )
+            Text(
+                text = moonAgeText,
+                style = TextStyle(
+                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
                 )
             )
             Text(
