@@ -105,6 +105,9 @@ private fun getWidgetTextColor(isDarkTheme: Boolean): Color =
 private fun getWidgetAccentColor(isDarkTheme: Boolean): Color =
     if (isDarkTheme) Color(0xFFFFD700) else Color(0xFFB8860B) // Gold / DarkGoldenrod
 
+private fun getWidgetSubduedTextColor(isDarkTheme: Boolean): Color =
+    if (isDarkTheme) Color(0xFF888888) else Color(0xFF666666) // Muted gray
+
 // 1x1 Widget - Tiny (moon icon with tithi number)
 @Composable
 fun Widget1x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
@@ -239,7 +242,7 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
             Text(
                 text = "${moonData.illuminationPercent}% ($phaseShort)",
                 style = TextStyle(
-                    color = ColorProvider(getWidgetAccentColor(isDarkTheme))
+                    color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
                 )
             )
         }
@@ -290,7 +293,7 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
             Text(
                 text = "${moonData.illuminationPercent}% Illuminated ($phaseShort)",
                 style = TextStyle(
-                    color = ColorProvider(getWidgetAccentColor(isDarkTheme))
+                    color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
                 )
             )
         }
@@ -332,13 +335,13 @@ fun Widget2x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Text(
             text = "${moonData.illuminationPercent}% ($phaseShort)",
             style = TextStyle(
-                color = ColorProvider(getWidgetAccentColor(isDarkTheme))
+                color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
             )
         )
         Text(
             text = moonAgeText,
             style = TextStyle(
-                color = ColorProvider(getWidgetTextColor(isDarkTheme))
+                color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
             )
         )
     }
@@ -387,14 +390,14 @@ fun Widget4x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
             Text(
                 text = "${moonData.illuminationPercent}% ($phaseShort)",
                 style = TextStyle(
-                    color = ColorProvider(getWidgetAccentColor(isDarkTheme))
+                    color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
                 )
             )
             Spacer(modifier = GlanceModifier.height(4.dp))
             Text(
                 text = moonAgeText,
                 style = TextStyle(
-                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
+                    color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
                 )
             )
         }
@@ -405,13 +408,13 @@ fun Widget4x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
             Text(
                 text = "$newMoonLabel: ${moonData.nextNewMoon.format(dateFormatter)}",
                 style = TextStyle(
-                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
+                    color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
                 )
             )
             Text(
                 text = "$fullMoonLabel: ${moonData.nextFullMoon.format(dateFormatter)}",
                 style = TextStyle(
-                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
+                    color = ColorProvider(getWidgetSubduedTextColor(isDarkTheme))
                 )
             )
         }
