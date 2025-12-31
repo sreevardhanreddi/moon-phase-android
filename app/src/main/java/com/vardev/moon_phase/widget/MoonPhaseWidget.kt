@@ -68,12 +68,7 @@ class MoonPhaseWidget : GlanceAppWidget() {
         val themeMode = PreferencesManager.getThemeMode(context)
         val moonData = MoonPhaseCalculator.calculate(selectedDate)
 
-        // Determine if dark theme based on preference or system setting
-        val isSystemDark = (context.resources.configuration.uiMode and
-                android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
-                android.content.res.Configuration.UI_MODE_NIGHT_YES
         val isDarkTheme = when (themeMode) {
-            ThemeMode.SYSTEM -> isSystemDark
             ThemeMode.LIGHT -> false
             ThemeMode.DARK -> true
         }
@@ -113,7 +108,7 @@ private fun getWidgetAccentColor(isDarkTheme: Boolean): Color =
 // 1x1 Widget - Tiny (moon icon with tithi number)
 @Composable
 fun Widget1x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
-    val bitmap = createMoonBitmap(moonData, 48, isDarkTheme)
+    val bitmap = createMoonBitmap(moonData, 64, isDarkTheme)
     val lunarDay = moonData.tithi.lunarDay
     val dayInPaksha = if (lunarDay <= 15) lunarDay else lunarDay - 15
     val isWaxing = lunarDay <= 15
@@ -124,12 +119,12 @@ fun Widget1x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         // Show short name for Purnima/Amavasya without paksha
         if (tithiName == "Purnima") "Purn" else "Amav"
     } else {
-        val tithiNum = "%02d".format(dayInPaksha)
+        val ordinal = getOrdinalWithSuperscript(dayInPaksha)
         val pakshaInitial = when (namingMode) {
             NamingMode.ENGLISH -> if (isWaxing) "W" else "Wn"
             NamingMode.HINDU -> if (isWaxing) "S" else "K"
         }
-        "$tithiNum ($pakshaInitial)"
+        "$ordinal ($pakshaInitial)"
     }
 
     Column(
@@ -144,7 +139,7 @@ fun Widget1x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Image(
             provider = ImageProvider(bitmap),
             contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(28.dp)
+            modifier = GlanceModifier.size(36.dp)
         )
         Text(
             text = displayText,
@@ -159,11 +154,14 @@ fun Widget1x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
 // 2x1 Widget - Compact
 @Composable
 fun Widget2x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
-    val bitmap = createMoonBitmap(moonData, 32, isDarkTheme)
-    val isWaxing = moonData.tithi.lunarDay <= 15
+    val bitmap = createMoonBitmap(moonData, 48, isDarkTheme)
+    val lunarDay = moonData.tithi.lunarDay
+    val dayInPaksha = if (lunarDay <= 15) lunarDay else lunarDay - 15
+    val isWaxing = lunarDay <= 15
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
-    val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
-    val moonAgeText = "%.1f days".format(moonData.moonAge)
+    val baseText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
+    val tithiText = "$baseText - ${getOrdinalWithSuperscript(dayInPaksha)}"
+    // val moonAgeText = "%.1f days".format(moonData.moonAge)
 
     Row(
         modifier = GlanceModifier
@@ -176,7 +174,7 @@ fun Widget2x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Image(
             provider = ImageProvider(bitmap),
             contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(32.dp)
+            modifier = GlanceModifier.size(40.dp)
         )
         Spacer(modifier = GlanceModifier.width(8.dp))
         Column {
@@ -187,12 +185,12 @@ fun Widget2x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
                     fontWeight = FontWeight.Medium
                 )
             )
-            Text(
-                text = moonAgeText,
-                style = TextStyle(
-                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
-                )
-            )
+            // Text(
+            //     text = moonAgeText,
+            //     style = TextStyle(
+            //         color = ColorProvider(getWidgetTextColor(isDarkTheme))
+            //     )
+            // )
         }
     }
 }
@@ -200,12 +198,15 @@ fun Widget2x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
 // 3x1 Widget - Medium horizontal
 @Composable
 fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
-    val bitmap = createMoonBitmap(moonData, 36, isDarkTheme)
-    val isWaxing = moonData.tithi.lunarDay <= 15
+    val bitmap = createMoonBitmap(moonData, 56, isDarkTheme)
+    val lunarDay = moonData.tithi.lunarDay
+    val dayInPaksha = if (lunarDay <= 15) lunarDay else lunarDay - 15
+    val isWaxing = lunarDay <= 15
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
-    val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
+    val baseText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
+    val tithiText = "$baseText - ${getOrdinalWithSuperscript(dayInPaksha)}"
     val phaseShort = getWidgetPhaseName(moonData, namingMode, isWaxing)
-    val moonAgeText = "%.1f days".format(moonData.moonAge)
+    // val moonAgeText = "%.1f days".format(moonData.moonAge)
 
     Row(
         modifier = GlanceModifier
@@ -218,7 +219,7 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Image(
             provider = ImageProvider(bitmap),
             contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(36.dp)
+            modifier = GlanceModifier.size(44.dp)
         )
         Spacer(modifier = GlanceModifier.width(10.dp))
         Column {
@@ -229,12 +230,12 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
                     fontWeight = FontWeight.Bold
                 )
             )
-            Text(
-                text = moonAgeText,
-                style = TextStyle(
-                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
-                )
-            )
+            // Text(
+            //     text = moonAgeText,
+            //     style = TextStyle(
+            //         color = ColorProvider(getWidgetTextColor(isDarkTheme))
+            //     )
+            // )
             Text(
                 text = "${moonData.illuminationPercent}% ($phaseShort)",
                 style = TextStyle(
@@ -248,12 +249,15 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
 // 4x1 Widget - Wide horizontal
 @Composable
 fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
-    val bitmap = createMoonBitmap(moonData, 40, isDarkTheme)
-    val isWaxing = moonData.tithi.lunarDay <= 15
+    val bitmap = createMoonBitmap(moonData, 64, isDarkTheme)
+    val lunarDay = moonData.tithi.lunarDay
+    val dayInPaksha = if (lunarDay <= 15) lunarDay else lunarDay - 15
+    val isWaxing = lunarDay <= 15
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
-    val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
+    val baseText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
+    val tithiText = "$baseText - ${getOrdinalWithSuperscript(dayInPaksha)}"
     val phaseShort = getWidgetPhaseName(moonData, namingMode, isWaxing)
-    val moonAgeText = "%.1f days".format(moonData.moonAge)
+    // val moonAgeText = "%.1f days".format(moonData.moonAge)
 
     Row(
         modifier = GlanceModifier
@@ -266,7 +270,7 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Image(
             provider = ImageProvider(bitmap),
             contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(40.dp)
+            modifier = GlanceModifier.size(52.dp)
         )
         Spacer(modifier = GlanceModifier.width(12.dp))
         Column(modifier = GlanceModifier.defaultWeight()) {
@@ -277,12 +281,12 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
                     fontWeight = FontWeight.Bold
                 )
             )
-            Text(
-                text = moonAgeText,
-                style = TextStyle(
-                    color = ColorProvider(getWidgetTextColor(isDarkTheme))
-                )
-            )
+            // Text(
+            //     text = moonAgeText,
+            //     style = TextStyle(
+            //         color = ColorProvider(getWidgetTextColor(isDarkTheme))
+            //     )
+            // )
             Text(
                 text = "${moonData.illuminationPercent}% Illuminated ($phaseShort)",
                 style = TextStyle(
@@ -296,7 +300,7 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
 // 2x2 Widget - Square
 @Composable
 fun Widget2x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
-    val bitmap = createMoonBitmap(moonData, 64, isDarkTheme)
+    val bitmap = createMoonBitmap(moonData, 80, isDarkTheme)
     val isWaxing = moonData.tithi.lunarDay <= 15
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
     val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
@@ -315,7 +319,7 @@ fun Widget2x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Image(
             provider = ImageProvider(bitmap),
             contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(40.dp)
+            modifier = GlanceModifier.size(52.dp)
         )
         Spacer(modifier = GlanceModifier.height(2.dp))
         Text(
@@ -343,7 +347,7 @@ fun Widget2x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
 // 4x2 Widget - Large
 @Composable
 fun Widget4x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkTheme: Boolean) {
-    val bitmap = createMoonBitmap(moonData, 80, isDarkTheme)
+    val bitmap = createMoonBitmap(moonData, 96, isDarkTheme)
     val isWaxing = moonData.tithi.lunarDay <= 15
     val (tithiDisplay, pakshaDisplay) = getWidgetTithiPaksha(moonData, namingMode, isWaxing)
     val tithiText = if (pakshaDisplay != null) "$tithiDisplay ($pakshaDisplay)" else tithiDisplay
@@ -367,7 +371,7 @@ fun Widget4x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
         Image(
             provider = ImageProvider(bitmap),
             contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(72.dp)
+            modifier = GlanceModifier.size(80.dp)
         )
         Spacer(modifier = GlanceModifier.width(12.dp))
         Column(
@@ -426,9 +430,46 @@ private fun getWidgetTithiPaksha(
 
     return when (namingMode) {
         NamingMode.ENGLISH -> {
-            val ordinal = getOrdinalName(dayInPaksha)
-            val paksha = if (isPurnimaOrAmavasya) null else if (isWaxing) "Waxing" else "Waning"
-            Pair(ordinal, paksha)
+            // Show Full Moon / New Moon for special days
+            when {
+                dayInPaksha == 15 && isWaxing -> Pair("Full Moon", null)
+                lunarDay == 30 || tithiName == "Amavasya" -> Pair("New Moon", null)
+                else -> {
+                    val ordinal = getOrdinalName(dayInPaksha)
+                    val paksha = if (isWaxing) "Waxing" else "Waning"
+                    Pair(ordinal, paksha)
+                }
+            }
+        }
+        NamingMode.HINDU -> {
+            val paksha = if (isPurnimaOrAmavasya) null else if (isWaxing) "Shukla" else "Krishna"
+            Pair(tithiName, paksha)
+        }
+    }
+}
+
+// Version with superscript ordinals (e.g., "12ᵗʰ" instead of "Twelfth")
+private fun getWidgetTithiPakshaWithSuperscript(
+    moonData: MoonPhaseData,
+    namingMode: NamingMode,
+    isWaxing: Boolean
+): Pair<String, String?> {
+    val lunarDay = moonData.tithi.lunarDay
+    val dayInPaksha = if (lunarDay <= 15) lunarDay else lunarDay - 15
+    val tithiName = moonData.tithi.tithiName.split(" ")[0]
+    val isPurnimaOrAmavasya = tithiName == "Purnima" || tithiName == "Amavasya"
+
+    return when (namingMode) {
+        NamingMode.ENGLISH -> {
+            when {
+                dayInPaksha == 15 && isWaxing -> Pair("Full Moon", null)
+                lunarDay == 30 || tithiName == "Amavasya" -> Pair("New Moon", null)
+                else -> {
+                    val ordinal = getOrdinalWithSuperscript(dayInPaksha)
+                    val paksha = if (isWaxing) "Waxing" else "Waning"
+                    Pair(ordinal, paksha)
+                }
+            }
         }
         NamingMode.HINDU -> {
             val paksha = if (isPurnimaOrAmavasya) null else if (isWaxing) "Shukla" else "Krishna"
@@ -486,17 +527,33 @@ private fun getWidgetSpecialDay(specialDayType: String?, namingMode: NamingMode)
     }
 }
 
+// Get ordinal number with Unicode superscript suffix (e.g., "12ᵗʰ")
+private fun getOrdinalWithSuperscript(day: Int): String {
+    val suffix = when {
+        day in 11..13 -> "ᵗʰ"
+        day % 10 == 1 -> "ˢᵗ"
+        day % 10 == 2 -> "ⁿᵈ"
+        day % 10 == 3 -> "ʳᵈ"
+        else -> "ᵗʰ"
+    }
+    return "$day$suffix"
+}
+
 private fun createMoonBitmap(moonData: MoonPhaseData, sizePx: Int, isDarkTheme: Boolean = true): Bitmap {
     val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
 
-    val radius = sizePx / 2f
     val centerX = sizePx / 2f
     val centerY = sizePx / 2f
+    // Make moon slightly smaller to fit glow within bitmap
+    val radius = sizePx / 2f * 0.85f
 
     // Moon colors based on theme
     val moonColor = if (isDarkTheme) 0xFFF5F5DC.toInt() else 0xFFFFE4B5.toInt() // Cream / Moccasin
     val shadowColor = if (isDarkTheme) 0xFF000000.toInt() else 0xFF404040.toInt() // Black / Dark Gray
+
+    // Glow color based on theme
+    val glowColor = if (isDarkTheme) 0xFFF5F5DC.toInt() else 0xFF000000.toInt()
 
     val moonPaint = Paint().apply {
         color = moonColor
@@ -506,6 +563,27 @@ private fun createMoonBitmap(moonData: MoonPhaseData, sizePx: Int, isDarkTheme: 
     val shadowPaint = Paint().apply {
         color = shadowColor
         isAntiAlias = true
+    }
+
+    val glowPaint = Paint().apply {
+        isAntiAlias = true
+    }
+
+    // Draw glow layers (outer to inner)
+    val glowLayers = 5
+    val maxGlowRadius = radius * 1.15f
+    for (i in glowLayers downTo 1) {
+        val fraction = i.toFloat() / glowLayers
+        val layerRadius = radius + (maxGlowRadius - radius) * fraction
+        val alpha = if (isDarkTheme) {
+            // Softer glow for dark theme
+            (0.15f * (1f - fraction + 0.2f) * 255).toInt()
+        } else {
+            // Subtle shadow for light theme
+            (0.08f * (1f - fraction + 0.2f) * 255).toInt()
+        }
+        glowPaint.color = (glowColor and 0x00FFFFFF) or (alpha shl 24)
+        canvas.drawCircle(centerX, centerY, layerRadius, glowPaint)
     }
 
     // Draw moon base

@@ -45,7 +45,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
+    themeMode: ThemeMode = ThemeMode.DARK,
     onThemeToggle: () -> Unit = {},
     namingMode: NamingMode = NamingMode.ENGLISH,
     onNamingModeToggle: () -> Unit = {},
@@ -59,7 +59,6 @@ fun HomeScreen(
     }
 
     val isDarkTheme = when (themeMode) {
-        ThemeMode.SYSTEM -> isSystemInDarkTheme()
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
     }
@@ -157,10 +156,16 @@ private fun getTithiDayLabel(moonData: MoonPhaseData, namingMode: NamingMode): S
 
     return when (namingMode) {
         NamingMode.ENGLISH -> {
-            val ordinal = getOrdinalName(dayInPaksha)
-            val phase = if (isWaxing) "Waxing" else "Waning"
-            // For Full Moon (15th) and New Moon (30th), don't show phase
-            if (dayInPaksha == 15 || lunarDay == 30) ordinal else "$ordinal ($phase)"
+            // For Full Moon (15th of Shukla) and New Moon (30th/Amavasya)
+            when {
+                dayInPaksha == 15 && isWaxing -> "Full Moon"
+                lunarDay == 30 || tithiName == "Amavasya" -> "New Moon"
+                else -> {
+                    val ordinal = getOrdinalName(dayInPaksha)
+                    val phase = if (isWaxing) "Waxing" else "Waning"
+                    "$ordinal ($phase)"
+                }
+            }
         }
         NamingMode.HINDU -> {
             val paksha = if (isWaxing) "Shukla" else "Krishna"
@@ -220,7 +225,6 @@ private fun TopBar(
             Icon(
                 painter = painterResource(
                     id = when (themeMode) {
-                        ThemeMode.SYSTEM -> R.drawable.ic_theme_auto
                         ThemeMode.LIGHT -> R.drawable.ic_theme_light
                         ThemeMode.DARK -> R.drawable.ic_theme_dark
                     }

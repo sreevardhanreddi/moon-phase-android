@@ -24,16 +24,16 @@ object PreferencesManager {
     }
 
     fun getThemeMode(context: Context): ThemeMode {
-        val value = getPrefs(context).getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name)
+        val value = getPrefs(context).getString(KEY_THEME_MODE, ThemeMode.DARK.name)
         return try {
-            ThemeMode.valueOf(value ?: ThemeMode.SYSTEM.name)
+            ThemeMode.valueOf(value ?: ThemeMode.DARK.name)
         } catch (e: IllegalArgumentException) {
-            ThemeMode.SYSTEM
+            ThemeMode.DARK
         }
     }
 
     fun setThemeMode(context: Context, mode: ThemeMode) {
-        getPrefs(context).edit().putString(KEY_THEME_MODE, mode.name).apply()
+        getPrefs(context).edit().putString(KEY_THEME_MODE, mode.name).commit()
         updateWidgets(context)
     }
 
@@ -47,7 +47,7 @@ object PreferencesManager {
     }
 
     fun setNamingMode(context: Context, mode: NamingMode) {
-        getPrefs(context).edit().putString(KEY_NAMING_MODE, mode.name).apply()
+        getPrefs(context).edit().putString(KEY_NAMING_MODE, mode.name).commit()
         updateWidgets(context)
     }
 
@@ -67,13 +67,34 @@ object PreferencesManager {
     fun setSelectedDate(context: Context, date: LocalDate) {
         getPrefs(context).edit()
             .putString(KEY_SELECTED_DATE, date.format(DateTimeFormatter.ISO_LOCAL_DATE))
-            .apply()
+            .commit()
         updateWidgets(context)
     }
 
     private fun updateWidgets(context: Context) {
-        CoroutineScope(Dispatchers.IO).launch {
-            MoonPhaseWidget().updateAll(context)
+        val appContext = context.applicationContext
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val widget = MoonPhaseWidget()
+                // Update all instances of the widget
+                widget.updateAll(appContext)
+
+                // Also explicitly update each widget instance via manager
+                val manager = GlanceAppWidgetManager(appContext)
+                val glanceIds = manager.getGlanceIds(MoonPhaseWidget::class.java)
+                glanceIds.forEach { glanceId ->
+                    widget.update(appContext, glanceId)
+                }
+            } catch (e: Exception) {
+                // Fallback: try on IO dispatcher
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        MoonPhaseWidget().updateAll(appContext)
+                    } catch (_: Exception) {
+                        // Widget update failed silently
+                    }
+                }
+            }
         }
     }
 }

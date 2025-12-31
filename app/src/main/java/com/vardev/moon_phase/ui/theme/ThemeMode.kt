@@ -3,14 +3,12 @@ package com.vardev.moon_phase.ui.theme
 import androidx.compose.runtime.saveable.Saver
 
 enum class ThemeMode {
-    SYSTEM,
     LIGHT,
     DARK;
 
     fun next(): ThemeMode = when (this) {
-        SYSTEM -> LIGHT
         LIGHT -> DARK
-        DARK -> SYSTEM
+        DARK -> LIGHT
     }
 
     companion object {
