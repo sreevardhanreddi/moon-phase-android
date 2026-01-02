@@ -231,33 +231,45 @@ private fun TopBar(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onNamingModeToggle) {
-            Icon(
-                painter = painterResource(
-                    id = when (namingMode) {
-                        NamingMode.ENGLISH -> R.drawable.ic_language_english
-                        NamingMode.HINDU -> R.drawable.ic_language_hindu
-                    }
-                ),
-                contentDescription = "Toggle naming (current: ${namingMode.name.lowercase()})",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        Spacer(modifier = Modifier.width(4.dp))
-        IconButton(onClick = onThemeToggle) {
-            Icon(
-                painter = painterResource(
-                    id = when (themeMode) {
-                        ThemeMode.LIGHT -> R.drawable.ic_theme_light
-                        ThemeMode.DARK -> R.drawable.ic_theme_dark
-                    }
-                ),
-                contentDescription = "Toggle theme (current: ${themeMode.name.lowercase()})",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        // App title on the left
+        Text(
+            text = "Moon Phase",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        
+        // Icons on the right
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onNamingModeToggle) {
+                Icon(
+                    painter = painterResource(
+                        id = when (namingMode) {
+                            NamingMode.ENGLISH -> R.drawable.ic_language_english
+                            NamingMode.HINDU -> R.drawable.ic_language_hindu
+                        }
+                    ),
+                    contentDescription = "Toggle naming (current: ${namingMode.name.lowercase()})",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(onClick = onThemeToggle) {
+                Icon(
+                    painter = painterResource(
+                        id = when (themeMode) {
+                            ThemeMode.LIGHT -> R.drawable.ic_theme_light
+                            ThemeMode.DARK -> R.drawable.ic_theme_dark
+                        }
+                    ),
+                    contentDescription = "Toggle theme (current: ${themeMode.name.lowercase()})",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
