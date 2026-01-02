@@ -4,6 +4,14 @@ An Android companion app for [moon-phase](https://github.com/sreevardhanreddi/mo
 
 Displays moon phases with Hindu lunar calendar (Tithi/Paksha) integration and home screen widgets.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/Screenshot_20260102_104802.png" width="280" alt="Moon Phase App - Main Screen"/>
+  &nbsp;&nbsp;
+  <img src="screenshots/Screenshot_20260102_104815.png" width="280" alt="Moon Phase App - Widgets"/>
+</p>
+
 ## Features
 
 - **Moon Phase Visualization** - Accurate moon phase rendering with shadow
@@ -15,14 +23,14 @@ Displays moon phases with Hindu lunar calendar (Tithi/Paksha) integration and ho
 
 ## Widgets
 
-| Size | Content |
-|------|---------|
-| 1x1 | Moon icon + tithi number |
-| 2x1 | Moon + tithi + moon age |
-| 3x1 | Moon + tithi + illumination % |
-| 4x1 | Moon + tithi + illumination + phase |
-| 2x2 | Moon + tithi + illumination + moon age |
-| 4x2 | Full info + next new/full moon dates |
+| Size | Content                                |
+| ---- | -------------------------------------- |
+| 1x1  | Moon icon + tithi number               |
+| 2x1  | Moon + tithi + moon age                |
+| 3x1  | Moon + tithi + illumination %          |
+| 4x1  | Moon + tithi + illumination + phase    |
+| 2x2  | Moon + tithi + illumination + moon age |
+| 4x2  | Full info + next new/full moon dates   |
 
 ## Tech Stack
 
