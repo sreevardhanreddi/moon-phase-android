@@ -51,7 +51,7 @@ Open in Android Studio and run on device/emulator.
 
 ## Download
 
-Download the latest APK from [GitHub Releases](https://github.com/sreevardhanreddi/moon-phase/releases).
+Download the latest APK from [GitHub Releases](https://github.com/sreevardhanreddi/moon-phase-android/releases).
 
 ### Installation
 
