@@ -14,3 +14,8 @@
 .cxx
 local.properties
 .claude
+
+# Signing
+*.keystore
+*.jks
+signing.properties

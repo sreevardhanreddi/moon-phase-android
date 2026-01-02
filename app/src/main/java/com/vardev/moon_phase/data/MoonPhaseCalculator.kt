@@ -9,11 +9,26 @@ import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
 
+/**
+ * Moon phase calculator using simplified synodic month approximation.
+ * 
+ * DISCLAIMER: These calculations are APPROXIMATIONS based on the average
+ * synodic month cycle (29.53 days). Results may differ by ±1 day from
+ * precise astronomical calculations which account for orbital perturbations,
+ * lunar anomaly, and other factors.
+ * 
+ * For religious observances, please consult a traditional Panchang or
+ * local calendar for accurate Tithi timings.
+ */
 object MoonPhaseCalculator {
 
+    // Average synodic month (time between new moons) - approximation
     private const val SYNODIC_MONTH = 29.53058867
-    private const val REFERENCE_NEW_MOON_JD = 2451549.5 // January 6, 2000
+    // Reference new moon: January 6, 2000 (Julian Date)
+    private const val REFERENCE_NEW_MOON_JD = 2451549.5
+    // Average Earth-Moon distance (approximate)
     private const val AVG_DISTANCE_KM = 384400.0
+    // Distance variation (simplified sine approximation)
     private const val DISTANCE_VARIATION_KM = 25000.0
 
     fun calculate(date: LocalDate): MoonPhaseData {
