@@ -27,12 +27,14 @@ class MainActivity : ComponentActivity() {
         // Load saved preferences
         val savedThemeMode = PreferencesManager.getThemeMode(this)
         val savedNamingMode = PreferencesManager.getNamingMode(this)
-        val savedDate = PreferencesManager.getSelectedDate(this)
+        // Always use current date instead of saved date
+        // val savedDate = PreferencesManager.getSelectedDate(this)
 
         setContent {
             var themeMode by rememberSaveable(stateSaver = ThemeMode.Saver) { mutableStateOf(savedThemeMode) }
             var namingMode by rememberSaveable(stateSaver = NamingMode.Saver) { mutableStateOf(savedNamingMode) }
-            var selectedDate by rememberSaveable { mutableStateOf(savedDate.toString()) }
+            // Always use current date
+            var selectedDate by rememberSaveable { mutableStateOf(LocalDate.now().toString()) }
 
             MoonphaseTheme(themeMode = themeMode) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -51,9 +53,9 @@ class MainActivity : ComponentActivity() {
                             PreferencesManager.setNamingMode(this@MainActivity, newMode)
                         },
                         selectedDate = LocalDate.parse(selectedDate),
+                        // Arrow navigation for date selection
                         onDateSelected = { date ->
                             selectedDate = date.toString()
-                            PreferencesManager.setSelectedDate(this@MainActivity, date)
                         }
                     )
                 }

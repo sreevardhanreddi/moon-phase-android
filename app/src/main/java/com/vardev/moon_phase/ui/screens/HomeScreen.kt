@@ -1,5 +1,7 @@
 package com.vardev.moon_phase.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,26 +23,33 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.vardev.moon_phase.R
 import com.vardev.moon_phase.data.MoonPhaseCalculator
 import com.vardev.moon_phase.model.MoonPhaseData
-import com.vardev.moon_phase.ui.components.MoonDatePickerDialog
+// Date picker commented out
+// import com.vardev.moon_phase.ui.components.MoonDatePickerDialog
 import com.vardev.moon_phase.ui.components.MoonInfoCard
 import com.vardev.moon_phase.ui.components.MoonInfoRow
 import com.vardev.moon_phase.ui.components.MoonPhaseView
 import com.vardev.moon_phase.ui.theme.NamingMode
 import com.vardev.moon_phase.ui.theme.ThemeMode
+import kotlinx.coroutines.delay
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -51,8 +61,10 @@ fun HomeScreen(
     onNamingModeToggle: () -> Unit = {},
     selectedDate: LocalDate = LocalDate.now(),
     onDateSelected: (LocalDate) -> Unit = {}
+    // Date picker dialog commented out - using arrow navigation instead
 ) {
-    var showDatePicker by remember { mutableStateOf(false) }
+    // Date picker state commented out
+    // var showDatePicker by remember { mutableStateOf(false) }
 
     val moonData = remember(selectedDate) {
         MoonPhaseCalculator.calculate(selectedDate)
@@ -63,16 +75,17 @@ fun HomeScreen(
         ThemeMode.DARK -> true
     }
 
-    if (showDatePicker) {
-        MoonDatePickerDialog(
-            selectedDate = selectedDate,
-            onDateSelected = { date ->
-                onDateSelected(date)
-                showDatePicker = false
-            },
-            onDismiss = { showDatePicker = false }
-        )
-    }
+    // Date picker dialog commented out
+    // if (showDatePicker) {
+    //     MoonDatePickerDialog(
+    //         selectedDate = selectedDate,
+    //         onDateSelected = { date ->
+    //             onDateSelected(date)
+    //             showDatePicker = false
+    //         },
+    //         onDismiss = { showDatePicker = false }
+    //     )
+    // }
 
     Column(
         modifier = modifier
@@ -89,11 +102,19 @@ fun HomeScreen(
             onNamingModeToggle = onNamingModeToggle
         )
 
-        // Date Header
-        DateHeader(
+        // Date Header with arrow navigation
+        DateHeaderWithArrows(
             date = selectedDate,
-            onDateClick = { showDatePicker = true }
+            onPreviousDate = { onDateSelected(selectedDate.minusDays(1)) },
+            onNextDate = { onDateSelected(selectedDate.plusDays(1)) },
+            onTodayClick = { onDateSelected(LocalDate.now()) }
         )
+        
+        // Old date picker dialog commented out
+        // DateHeader(
+        //     date = selectedDate,
+        //     onDateClick = { showDatePicker = true }
+        // )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -132,6 +153,11 @@ fun HomeScreen(
 
         // Additional Info
         AdditionalInfoSection(moonData = moonData, namingMode = namingMode)
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Footer with links and live clock
+        Footer()
     }
 }
 
@@ -236,29 +262,161 @@ private fun TopBar(
     }
 }
 
+// Old interactive DateHeader commented out
+// @Composable
+// private fun DateHeader(
+//     date: LocalDate,
+//     onDateClick: () -> Unit
+// ) {
+//     Row(
+//         modifier = Modifier
+//             .fillMaxWidth()
+//             .clickable(onClick = onDateClick),
+//         horizontalArrangement = Arrangement.Center,
+//         verticalAlignment = Alignment.CenterVertically
+//     ) {
+//         Text(
+//             text = date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
+//             style = MaterialTheme.typography.titleLarge,
+//             textAlign = TextAlign.Center
+//         )
+//         IconButton(onClick = onDateClick) {
+//             Icon(
+//                 imageVector = Icons.Default.DateRange,
+//                 contentDescription = "Select date"
+//             )
+//         }
+//     }
+// }
+
 @Composable
-private fun DateHeader(
+private fun DateHeaderWithArrows(
     date: LocalDate,
-    onDateClick: () -> Unit
+    onPreviousDate: () -> Unit,
+    onNextDate: () -> Unit,
+    onTodayClick: () -> Unit = {}
 ) {
+    val isToday = date == LocalDate.now()
+    
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onDateClick),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
-        IconButton(onClick = onDateClick) {
+        // Previous date arrow
+        IconButton(onClick = onPreviousDate) {
             Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = "Select date"
+                painter = painterResource(id = R.drawable.ic_arrow_left),
+                contentDescription = "Previous date",
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
+        
+        // Date text
+        Text(
+            text = date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier.weight(1f)
+        )
+        
+        // Next date arrow
+        IconButton(onClick = onNextDate) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_right),
+                contentDescription = "Next date",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        
+        // Today button (only show if not already on today)
+        IconButton(
+            onClick = onTodayClick,
+            enabled = !isToday
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_today),
+                contentDescription = "Go to today",
+                tint = if (isToday) 
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f) 
+                else 
+                    MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+private fun Footer() {
+    val context = LocalContext.current
+    var currentTime by remember { mutableStateOf(LocalTime.now()) }
+    
+    // Update clock every second
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = LocalTime.now()
+            delay(1000L)
+        }
+    }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Links Row
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Portfolio Website Link (Globe icon)
+            IconButton(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/sreevardhanreddi/moon-phase"))
+                    context.startActivity(intent)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_globe),
+                    contentDescription = "Visit portfolio website",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            // Dot separator
+            Text(
+                text = "•",
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            
+            // GitHub Link
+            IconButton(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/sreevardhanreddi/moon-phase-android"))
+                    context.startActivity(intent)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_github),
+                    contentDescription = "View source code on GitHub",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        
+        // Live Clock
+        Text(
+            text = currentTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+            style = MaterialTheme.typography.bodyMedium,
+            fontFamily = FontFamily.Monospace,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+        )
     }
 }
 

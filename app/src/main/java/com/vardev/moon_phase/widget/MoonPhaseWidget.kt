@@ -63,10 +63,11 @@ class MoonPhaseWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val selectedDate = PreferencesManager.getSelectedDate(context)
+        // Always use current date for widget
+        val currentDate = LocalDate.now()
         val namingMode = PreferencesManager.getNamingMode(context)
         val themeMode = PreferencesManager.getThemeMode(context)
-        val moonData = MoonPhaseCalculator.calculate(selectedDate)
+        val moonData = MoonPhaseCalculator.calculate(currentDate)
 
         val isDarkTheme = when (themeMode) {
             ThemeMode.LIGHT -> false
