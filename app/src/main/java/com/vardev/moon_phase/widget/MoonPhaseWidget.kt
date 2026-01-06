@@ -1,11 +1,13 @@
 package com.vardev.moon_phase.widget
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
@@ -16,12 +18,19 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.updateAll
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -47,6 +56,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
+private const val TAG = "MoonPhaseWidget"
+
 class MoonPhaseWidget : GlanceAppWidget() {
 
     companion object {
@@ -63,10 +74,12 @@ class MoonPhaseWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        Log.d(TAG, "provideGlance: Called for widget $id")
         // Always use current date for widget
         val currentDate = LocalDate.now()
         val namingMode = PreferencesManager.getNamingMode(context)
         val themeMode = PreferencesManager.getThemeMode(context)
+        Log.d(TAG, "provideGlance: themeMode=$themeMode, namingMode=$namingMode, date=$currentDate")
         val moonData = MoonPhaseCalculator.calculate(currentDate)
 
         val isDarkTheme = when (themeMode) {
@@ -92,6 +105,36 @@ class MoonPhaseWidget : GlanceAppWidget() {
                     else -> Widget1x1Content(moonData, namingMode, isDarkTheme)
                 }
             }
+        }
+    }
+}
+
+// Key to force widget refresh by changing state
+private val REFRESH_KEY = longPreferencesKey("refresh_timestamp")
+
+// Action callback to refresh the widget when clicked
+class RefreshWidgetAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        Log.d(TAG, "RefreshWidgetAction: onAction called for widget $glanceId")
+        try {
+            // Force state change to trigger refresh
+            val timestamp = System.currentTimeMillis()
+            Log.d(TAG, "RefreshWidgetAction: Forcing state change with timestamp $timestamp")
+            updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
+                prefs.toMutablePreferences().apply {
+                    this[REFRESH_KEY] = timestamp
+                }
+            }
+
+            // Update all widget instances (updateAll triggers provideGlance for each)
+            MoonPhaseWidget().updateAll(context)
+            Log.d(TAG, "RefreshWidgetAction: Widget update completed")
+        } catch (e: Exception) {
+            Log.e(TAG, "RefreshWidgetAction: Error updating widget", e)
         }
     }
 }
@@ -142,8 +185,10 @@ fun Widget1x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     ) {
         Image(
             provider = ImageProvider(bitmap),
-            contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(36.dp)
+            contentDescription = "Moon phase - tap to refresh",
+            modifier = GlanceModifier
+                .size(36.dp)
+                .clickable(actionRunCallback<RefreshWidgetAction>())
         )
         Text(
             text = displayText,
@@ -177,8 +222,10 @@ fun Widget2x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     ) {
         Image(
             provider = ImageProvider(bitmap),
-            contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(40.dp)
+            contentDescription = "Moon phase - tap to refresh",
+            modifier = GlanceModifier
+                .size(40.dp)
+                .clickable(actionRunCallback<RefreshWidgetAction>())
         )
         Spacer(modifier = GlanceModifier.width(8.dp))
         Column {
@@ -222,8 +269,10 @@ fun Widget3x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     ) {
         Image(
             provider = ImageProvider(bitmap),
-            contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(44.dp)
+            contentDescription = "Moon phase - tap to refresh",
+            modifier = GlanceModifier
+                .size(44.dp)
+                .clickable(actionRunCallback<RefreshWidgetAction>())
         )
         Spacer(modifier = GlanceModifier.width(10.dp))
         Column {
@@ -273,8 +322,10 @@ fun Widget4x1Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     ) {
         Image(
             provider = ImageProvider(bitmap),
-            contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(52.dp)
+            contentDescription = "Moon phase - tap to refresh",
+            modifier = GlanceModifier
+                .size(52.dp)
+                .clickable(actionRunCallback<RefreshWidgetAction>())
         )
         Spacer(modifier = GlanceModifier.width(12.dp))
         Column(modifier = GlanceModifier.defaultWeight()) {
@@ -322,8 +373,10 @@ fun Widget2x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     ) {
         Image(
             provider = ImageProvider(bitmap),
-            contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(52.dp)
+            contentDescription = "Moon phase - tap to refresh",
+            modifier = GlanceModifier
+                .size(52.dp)
+                .clickable(actionRunCallback<RefreshWidgetAction>())
         )
         Spacer(modifier = GlanceModifier.height(2.dp))
         Text(
@@ -374,8 +427,10 @@ fun Widget4x2Content(moonData: MoonPhaseData, namingMode: NamingMode, isDarkThem
     ) {
         Image(
             provider = ImageProvider(bitmap),
-            contentDescription = "Moon phase",
-            modifier = GlanceModifier.size(80.dp)
+            contentDescription = "Moon phase - tap to refresh",
+            modifier = GlanceModifier
+                .size(80.dp)
+                .clickable(actionRunCallback<RefreshWidgetAction>())
         )
         Spacer(modifier = GlanceModifier.width(12.dp))
         Column(
@@ -664,24 +719,78 @@ private fun createMoonBitmap(moonData: MoonPhaseData, sizePx: Int, isDarkTheme: 
 // Widget Receivers for each size
 class Widget1x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        Log.d(TAG, "Widget1x1Receiver.onUpdate: Updating ${appWidgetIds.size} widgets")
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
 }
 
 class Widget2x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        Log.d(TAG, "Widget2x1Receiver.onUpdate: Updating ${appWidgetIds.size} widgets")
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
 }
 
 class Widget3x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        Log.d(TAG, "Widget3x1Receiver.onUpdate: Updating ${appWidgetIds.size} widgets")
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
 }
 
 class Widget4x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        Log.d(TAG, "Widget4x1Receiver.onUpdate: Updating ${appWidgetIds.size} widgets")
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
 }
 
 class Widget2x2Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        Log.d(TAG, "Widget2x2Receiver.onUpdate: Updating ${appWidgetIds.size} widgets")
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
 }
 
 class Widget4x2Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        Log.d(TAG, "Widget4x2Receiver.onUpdate: Updating ${appWidgetIds.size} widgets")
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
 }

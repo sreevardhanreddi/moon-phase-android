@@ -42,6 +42,7 @@ import com.vardev.moon_phase.data.MoonPhaseCalculator
 import com.vardev.moon_phase.model.MoonPhaseData
 // Date picker commented out
 // import com.vardev.moon_phase.ui.components.MoonDatePickerDialog
+import com.vardev.moon_phase.data.PreferencesManager
 import com.vardev.moon_phase.ui.components.MoonInfoCard
 import com.vardev.moon_phase.ui.components.MoonInfoRow
 import com.vardev.moon_phase.ui.components.MoonPhaseView
@@ -240,7 +241,7 @@ private fun TopBar(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-        
+
         // Icons on the right
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -308,8 +309,9 @@ private fun DateHeaderWithArrows(
     onNextDate: () -> Unit,
     onTodayClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val isToday = date == LocalDate.now()
-    
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -323,7 +325,7 @@ private fun DateHeaderWithArrows(
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
-        
+
         // Date text
         Text(
             text = date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
@@ -332,7 +334,7 @@ private fun DateHeaderWithArrows(
             maxLines = 1,
             modifier = Modifier.weight(1f)
         )
-        
+
         // Next date arrow
         IconButton(onClick = onNextDate) {
             Icon(
@@ -341,18 +343,21 @@ private fun DateHeaderWithArrows(
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
-        
-        // Today button (only show if not already on today)
+
+        // Today button - resets to today and syncs widgets
         IconButton(
-            onClick = onTodayClick,
+            onClick = {
+                onTodayClick()
+                PreferencesManager.syncWidgets(context)
+            },
             enabled = !isToday
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_today),
-                contentDescription = "Go to today",
-                tint = if (isToday) 
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f) 
-                else 
+                contentDescription = "Go to today and sync widgets",
+                tint = if (isToday)
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                else
                     MaterialTheme.colorScheme.primary
             )
         }
