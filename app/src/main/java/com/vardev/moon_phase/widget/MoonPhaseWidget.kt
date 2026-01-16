@@ -720,6 +720,12 @@ private fun createMoonBitmap(moonData: MoonPhaseData, sizePx: Int, isDarkTheme: 
 class Widget1x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
 
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        Log.d(TAG, "Widget1x1Receiver.onEnabled: Scheduling widget updates")
+        WidgetUpdateWorker.schedule(context)
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -732,6 +738,12 @@ class Widget1x1Receiver : GlanceAppWidgetReceiver() {
 
 class Widget2x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        Log.d(TAG, "Widget2x1Receiver.onEnabled: Scheduling widget updates")
+        WidgetUpdateWorker.schedule(context)
+    }
 
     override fun onUpdate(
         context: Context,
@@ -746,6 +758,12 @@ class Widget2x1Receiver : GlanceAppWidgetReceiver() {
 class Widget3x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
 
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        Log.d(TAG, "Widget3x1Receiver.onEnabled: Scheduling widget updates")
+        WidgetUpdateWorker.schedule(context)
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -758,6 +776,12 @@ class Widget3x1Receiver : GlanceAppWidgetReceiver() {
 
 class Widget4x1Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        Log.d(TAG, "Widget4x1Receiver.onEnabled: Scheduling widget updates")
+        WidgetUpdateWorker.schedule(context)
+    }
 
     override fun onUpdate(
         context: Context,
@@ -772,6 +796,12 @@ class Widget4x1Receiver : GlanceAppWidgetReceiver() {
 class Widget2x2Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
 
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        Log.d(TAG, "Widget2x2Receiver.onEnabled: Scheduling widget updates")
+        WidgetUpdateWorker.schedule(context)
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -784,6 +814,12 @@ class Widget2x2Receiver : GlanceAppWidgetReceiver() {
 
 class Widget4x2Receiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = MoonPhaseWidget()
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        Log.d(TAG, "Widget4x2Receiver.onEnabled: Scheduling widget updates")
+        WidgetUpdateWorker.schedule(context)
+    }
 
     override fun onUpdate(
         context: Context,

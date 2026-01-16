@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import com.vardev.moon_phase.data.PreferencesManager
 import com.vardev.moon_phase.ui.screens.HomeScreen
 import com.vardev.moon_phase.ui.theme.MoonphaseTheme
+import com.vardev.moon_phase.widget.WidgetUpdateWorker
 import com.vardev.moon_phase.ui.theme.NamingMode
 import com.vardev.moon_phase.ui.theme.ThemeMode
 import java.time.LocalDate
@@ -23,6 +24,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Schedule periodic widget updates (hourly)
+        WidgetUpdateWorker.schedule(this)
 
         // Load saved preferences
         val savedThemeMode = PreferencesManager.getThemeMode(this)

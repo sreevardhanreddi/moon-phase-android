@@ -9,4 +9,4 @@
     android:resizeMode="horizontal"
     android:widgetCategory="home_screen"
     android:description="@string/widget_3x1_description"
-    android:previewLayout="@layout/widget_loading" />
+    android:previewLayout="@layout/widget_preview_3x1" />
