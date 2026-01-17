@@ -4,7 +4,6 @@ import com.vardev.moon_phase.model.MoonPhaseData
 import com.vardev.moon_phase.model.TithiData
 import java.time.LocalDate
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -24,8 +23,9 @@ object MoonPhaseCalculator {
 
     // Average synodic month (time between new moons) - approximation
     private const val SYNODIC_MONTH = 29.53058867
-    // Reference new moon: January 6, 2000 (Julian Date)
-    private const val REFERENCE_NEW_MOON_JD = 2451549.5
+    // Reference new moon: January 6, 2000 at 18:14 UTC (Julian Date)
+    // Adjusted for IST sunrise-based calendar (tithi changes ~6:30 AM IST)
+    private const val REFERENCE_NEW_MOON_JD = 2451549.76
     // Average Earth-Moon distance (approximate)
     private const val AVG_DISTANCE_KM = 384400.0
     // Distance variation (simplified sine approximation)
@@ -39,7 +39,7 @@ object MoonPhaseCalculator {
         val illumination = (1 - cos(phase * 2 * PI)) / 2
         val phaseName = getPhaseName(phase)
         val distance = AVG_DISTANCE_KM + sin(phase * 2 * PI) * DISTANCE_VARIATION_KM
-        val lunarDay = (floor(moonAge).toInt() % 30) + 1
+        val lunarDay = floor(moonAge).toInt() + 1
         val tithi = calculateTithi(lunarDay)
         val nextNewMoon = calculateNextPhase(phase, 0.0, date)
         val nextFullMoon = calculateNextPhase(phase, 0.5, date)
