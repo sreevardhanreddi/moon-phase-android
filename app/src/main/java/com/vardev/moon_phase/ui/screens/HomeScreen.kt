@@ -139,11 +139,11 @@ fun HomeScreen(
 
         // Illumination with Phase Name
         val displayPhaseName = getDisplayPhaseName(moonData, namingMode)
-        Text(
-            text = "${moonData.illuminationPercent}% Illuminated ($displayPhaseName)",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        // Text(
+        //     text = "${moonData.illuminationPercent}% Illuminated ($displayPhaseName)",
+        //     style = MaterialTheme.typography.bodyLarge,
+        //     color = MaterialTheme.colorScheme.onSurfaceVariant
+        // )
 
         Spacer(modifier = Modifier.height(24.dp))
 
