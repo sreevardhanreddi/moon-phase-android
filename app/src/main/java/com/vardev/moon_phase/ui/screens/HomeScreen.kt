@@ -526,12 +526,6 @@ private fun AdditionalInfoSection(moonData: MoonPhaseData, namingMode: NamingMod
             fontWeight = FontWeight.SemiBold
         )
 
-        MoonInfoCard(
-            title = "Moon Age",
-            value = "%.1f days".format(moonData.moonAge),
-            subtitle = "into lunar cycle"
-        )
-
         MoonInfoRow(
             items = listOf(
                 nextNewMoonLabel to moonData.nextNewMoon.format(
@@ -541,6 +535,12 @@ private fun AdditionalInfoSection(moonData: MoonPhaseData, namingMode: NamingMod
                     DateTimeFormatter.ofPattern("MMM d")
                 )
             )
+        )
+
+        MoonInfoCard(
+            title = "Moon Age",
+            value = "%.1f days".format(moonData.moonAge),
+            subtitle = "into lunar cycle"
         )
 
         // Distance card hidden

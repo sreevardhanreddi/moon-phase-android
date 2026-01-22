@@ -75,10 +75,12 @@ class MoonPhaseWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         Log.d(TAG, "provideGlance: Called for widget $id")
+        // Use applicationContext to ensure consistent SharedPreferences access
+        val appContext = context.applicationContext
         // Always use current date for widget
         val currentDate = LocalDate.now()
-        val namingMode = PreferencesManager.getNamingMode(context)
-        val themeMode = PreferencesManager.getThemeMode(context)
+        val namingMode = PreferencesManager.getNamingMode(appContext)
+        val themeMode = PreferencesManager.getThemeMode(appContext)
         Log.d(TAG, "provideGlance: themeMode=$themeMode, namingMode=$namingMode, date=$currentDate")
         val moonData = MoonPhaseCalculator.calculate(currentDate)
 

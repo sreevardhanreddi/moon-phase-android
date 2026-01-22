@@ -38,35 +38,65 @@ object PreferencesManager {
     }
 
     fun getThemeMode(context: Context): ThemeMode {
-        val value = getPrefs(context).getString(KEY_THEME_MODE, ThemeMode.DARK.name)
-        return try {
-            ThemeMode.valueOf(value ?: ThemeMode.DARK.name)
-        } catch (e: IllegalArgumentException) {
+        val appContext = context.applicationContext
+        val prefs = getPrefs(appContext)
+        val value = prefs.getString(KEY_THEME_MODE, null)
+        Log.d(TAG, "getThemeMode: Raw value from prefs = '$value'")
+        val result = if (value != null) {
+            try {
+                ThemeMode.valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "getThemeMode: Invalid value '$value', defaulting to DARK")
+                ThemeMode.DARK
+            }
+        } else {
+            Log.d(TAG, "getThemeMode: No saved value, defaulting to DARK")
             ThemeMode.DARK
         }
+        Log.d(TAG, "getThemeMode: Returning $result")
+        return result
     }
 
     fun setThemeMode(context: Context, mode: ThemeMode) {
+        val appContext = context.applicationContext
         Log.d(TAG, "setThemeMode: Setting theme to ${mode.name}")
-        val success = getPrefs(context).edit().putString(KEY_THEME_MODE, mode.name).commit()
+        val success = getPrefs(appContext).edit().putString(KEY_THEME_MODE, mode.name).commit()
         Log.d(TAG, "setThemeMode: Commit success = $success")
-        updateWidgets(context)
+        // Verify the save worked
+        val verified = getPrefs(appContext).getString(KEY_THEME_MODE, null)
+        Log.d(TAG, "setThemeMode: Verified value after save = '$verified'")
+        updateWidgets(appContext)
     }
 
     fun getNamingMode(context: Context): NamingMode {
-        val value = getPrefs(context).getString(KEY_NAMING_MODE, NamingMode.ENGLISH.name)
-        return try {
-            NamingMode.valueOf(value ?: NamingMode.ENGLISH.name)
-        } catch (e: IllegalArgumentException) {
+        val appContext = context.applicationContext
+        val prefs = getPrefs(appContext)
+        val value = prefs.getString(KEY_NAMING_MODE, null)
+        Log.d(TAG, "getNamingMode: Raw value from prefs = '$value'")
+        val result = if (value != null) {
+            try {
+                NamingMode.valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "getNamingMode: Invalid value '$value', defaulting to ENGLISH")
+                NamingMode.ENGLISH
+            }
+        } else {
+            Log.d(TAG, "getNamingMode: No saved value, defaulting to ENGLISH")
             NamingMode.ENGLISH
         }
+        Log.d(TAG, "getNamingMode: Returning $result")
+        return result
     }
 
     fun setNamingMode(context: Context, mode: NamingMode) {
+        val appContext = context.applicationContext
         Log.d(TAG, "setNamingMode: Setting naming mode to ${mode.name}")
-        val success = getPrefs(context).edit().putString(KEY_NAMING_MODE, mode.name).commit()
+        val success = getPrefs(appContext).edit().putString(KEY_NAMING_MODE, mode.name).commit()
         Log.d(TAG, "setNamingMode: Commit success = $success")
-        updateWidgets(context)
+        // Verify the save worked
+        val verified = getPrefs(appContext).getString(KEY_NAMING_MODE, null)
+        Log.d(TAG, "setNamingMode: Verified value after save = '$verified'")
+        updateWidgets(appContext)
     }
 
     fun getSelectedDate(context: Context): LocalDate {
