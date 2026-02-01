@@ -39,7 +39,9 @@ object MoonPhaseCalculator {
         val illumination = (1 - cos(phase * 2 * PI)) / 2
         val phaseName = getPhaseName(phase)
         val distance = AVG_DISTANCE_KM + sin(phase * 2 * PI) * DISTANCE_VARIATION_KM
-        val lunarDay = floor(moonAge).toInt() + 1
+        // Each tithi is synodic month / 30 = ~0.984 days, not 1 solar day
+        val tithiDuration = SYNODIC_MONTH / 30.0
+        val lunarDay = minOf(30, floor(moonAge / tithiDuration).toInt() + 1)
         val tithi = calculateTithi(lunarDay)
         val nextNewMoon = calculateNextPhase(phase, 0.0, date)
         val nextFullMoon = calculateNextPhase(phase, 0.5, date)
