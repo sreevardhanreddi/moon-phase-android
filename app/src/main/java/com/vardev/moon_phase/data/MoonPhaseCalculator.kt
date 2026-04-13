@@ -64,8 +64,9 @@ object MoonPhaseCalculator {
         val moonAgeMillis = dateTime.toInstant().toEpochMilli() - lastNewMoon.toInstant().toEpochMilli()
         val moonAge = moonAgeMillis.toDouble() / (1000.0 * 60.0 * 60.0 * 24.0)
 
-        // Phase as 0-1 value (0 = new moon, 0.5 = full moon)
-        val phase = illumination.phase
+        // Convert phase from library range (-180..180 degrees) to 0..1
+        // -180 = new moon (0.0), 0 = full moon (0.5), 180 = new moon (1.0)
+        val phase = (illumination.phase + 180.0) / 360.0
 
         // Illumination fraction (0-1)
         val illuminationFraction = illumination.fraction
