@@ -2,68 +2,100 @@ package com.vardev.moon_phase.data
 
 import com.vardev.moon_phase.model.MoonPhaseData
 import com.vardev.moon_phase.model.TithiData
+import org.shredzone.commons.suncalc.MoonIllumination
+import org.shredzone.commons.suncalc.MoonPhase
+import org.shredzone.commons.suncalc.MoonPosition
+import org.shredzone.commons.suncalc.MoonTimes
 import java.time.LocalDate
-import kotlin.math.PI
-import kotlin.math.cos
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.math.floor
-import kotlin.math.sin
 
 /**
- * Moon phase calculator using simplified synodic month approximation.
- * 
- * DISCLAIMER: These calculations are APPROXIMATIONS based on the average
- * synodic month cycle (29.53 days). Results may differ by ±1 day from
- * precise astronomical calculations which account for orbital perturbations,
- * lunar anomaly, and other factors.
- * 
- * For religious observances, please consult a traditional Panchang or
- * local calendar for accurate Tithi timings.
+ * Moon phase calculator using commons-suncalc library for accurate astronomical calculations.
+ * Uses Delhi, India coordinates for location-based calculations.
  */
 object MoonPhaseCalculator {
 
-    // Average synodic month (time between new moons) - approximation
+    // Delhi, India coordinates
+    private const val LATITUDE = 28.6139
+    private const val LONGITUDE = 77.2090
+
+    // India Standard Time zone
+    private val IST_ZONE = ZoneId.of("Asia/Kolkata")
+
+    // Average synodic month for tithi calculations
     private const val SYNODIC_MONTH = 29.53058867
-    // Reference new moon: January 6, 2000 at 18:14 UTC (Julian Date)
-    // Adjusted for IST sunrise-based calendar (tithi changes ~6:30 AM IST)
-    private const val REFERENCE_NEW_MOON_JD = 2451549.76
-    // Average Earth-Moon distance (approximate)
-    private const val AVG_DISTANCE_KM = 384400.0
-    // Distance variation (simplified sine approximation)
-    private const val DISTANCE_VARIATION_KM = 25000.0
 
     fun calculate(date: LocalDate): MoonPhaseData {
-        val julianDate = calculateJulianDate(date.year, date.monthValue, date.dayOfMonth)
-        val daysSinceNew = julianDate - REFERENCE_NEW_MOON_JD
-        val moonAge = ((daysSinceNew % SYNODIC_MONTH) + SYNODIC_MONTH) % SYNODIC_MONTH
-        val phase = moonAge / SYNODIC_MONTH
-        val illumination = (1 - cos(phase * 2 * PI)) / 2
+        val dateTime = date.atStartOfDay(IST_ZONE)
+
+        // Get moon illumination data (phase, fraction, angle)
+        val illumination = MoonIllumination.compute()
+            .on(dateTime)
+            .execute()
+
+        // Get moon position (distance, altitude, azimuth)
+        val position = MoonPosition.compute()
+            .on(dateTime)
+            .at(LATITUDE, LONGITUDE)
+            .execute()
+
+        // Get next new moon
+        val nextNewMoonTime = MoonPhase.compute()
+            .phase(MoonPhase.Phase.NEW_MOON)
+            .on(dateTime)
+            .execute()
+
+        // Get next full moon
+        val nextFullMoonTime = MoonPhase.compute()
+            .phase(MoonPhase.Phase.FULL_MOON)
+            .on(dateTime)
+            .execute()
+
+        // Get last new moon to calculate moon age
+        val lastNewMoonTime = MoonPhase.compute()
+            .phase(MoonPhase.Phase.NEW_MOON)
+            .on(dateTime.minusDays(30))
+            .execute()
+
+        // Calculate moon age (days since last new moon)
+        val lastNewMoon = lastNewMoonTime.time
+        val moonAgeMillis = dateTime.toInstant().toEpochMilli() - lastNewMoon.toInstant().toEpochMilli()
+        val moonAge = moonAgeMillis.toDouble() / (1000.0 * 60.0 * 60.0 * 24.0)
+
+        // Phase as 0-1 value (0 = new moon, 0.5 = full moon)
+        val phase = illumination.phase
+
+        // Illumination fraction (0-1)
+        val illuminationFraction = illumination.fraction
+
+        // Distance in km
+        val distanceKm = position.distance
+
+        // Get phase name
         val phaseName = getPhaseName(phase)
-        val distance = AVG_DISTANCE_KM + sin(phase * 2 * PI) * DISTANCE_VARIATION_KM
-        // Each tithi is synodic month / 30 = ~0.984 days, not 1 solar day
+
+        // Calculate tithi (lunar day 1-30)
         val tithiDuration = SYNODIC_MONTH / 30.0
         val lunarDay = minOf(30, floor(moonAge / tithiDuration).toInt() + 1)
         val tithi = calculateTithi(lunarDay)
-        val nextNewMoon = calculateNextPhase(phase, 0.0, date)
-        val nextFullMoon = calculateNextPhase(phase, 0.5, date)
+
+        // Convert next phase times to LocalDate
+        val nextNewMoon = nextNewMoonTime.time.toLocalDate()
+        val nextFullMoon = nextFullMoonTime.time.toLocalDate()
 
         return MoonPhaseData(
             date = date,
             moonAge = moonAge,
             phase = phase,
-            illumination = illumination,
+            illumination = illuminationFraction,
             phaseName = phaseName,
-            distanceKm = distance,
+            distanceKm = distanceKm,
             nextNewMoon = nextNewMoon,
             nextFullMoon = nextFullMoon,
             tithi = tithi
         )
-    }
-
-    private fun calculateJulianDate(year: Int, month: Int, day: Int): Double {
-        return 367.0 * year -
-                floor(7.0 * (year + floor((month + 9.0) / 12.0)) / 4.0) +
-                floor(275.0 * month / 9.0) +
-                day + 1721013.5
     }
 
     private fun getPhaseName(phase: Double): String {
@@ -77,15 +109,6 @@ object MoonPhaseCalculator {
             phase < 0.783 -> "Last Quarter"
             else -> "Waning Crescent"
         }
-    }
-
-    private fun calculateNextPhase(currentPhase: Double, targetPhase: Double, fromDate: LocalDate): LocalDate {
-        val daysUntil = if (targetPhase > currentPhase) {
-            (targetPhase - currentPhase) * SYNODIC_MONTH
-        } else {
-            (1 - currentPhase + targetPhase) * SYNODIC_MONTH
-        }
-        return fromDate.plusDays(daysUntil.toLong())
     }
 
     private fun calculateTithi(lunarDay: Int): TithiData {
@@ -144,4 +167,17 @@ object MoonPhaseCalculator {
     }
 
     fun isWaxing(lunarDay: Int): Boolean = lunarDay <= 15
+
+    /**
+     * Get moon rise and set times for a given date
+     */
+    fun getMoonTimes(date: LocalDate): Pair<ZonedDateTime?, ZonedDateTime?> {
+        val dateTime = date.atStartOfDay(IST_ZONE)
+        val times = MoonTimes.compute()
+            .on(dateTime)
+            .at(LATITUDE, LONGITUDE)
+            .execute()
+
+        return Pair(times.rise, times.set)
+    }
 }
