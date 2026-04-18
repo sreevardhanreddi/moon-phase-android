@@ -28,7 +28,9 @@ object MoonPhaseCalculator {
     private const val SYNODIC_MONTH = 29.53058867
 
     fun calculate(date: LocalDate): MoonPhaseData {
-        val dateTime = date.atStartOfDay(IST_ZONE)
+        // Panchang convention: the tithi prevailing at local sunrise defines the day's tithi.
+        // Use ~6 AM IST as an approximation of sunrise for Delhi.
+        val dateTime = date.atStartOfDay(IST_ZONE).plusHours(6)
 
         // Get moon illumination data (phase, fraction, angle)
         val illumination = MoonIllumination.compute()
@@ -77,9 +79,12 @@ object MoonPhaseCalculator {
         // Get phase name
         val phaseName = getPhaseName(phase)
 
-        // Calculate tithi (lunar day 1-30)
-        val tithiDuration = SYNODIC_MONTH / 30.0
-        val lunarDay = minOf(30, floor(moonAge / tithiDuration).toInt() + 1)
+        // Calculate tithi (lunar day 1-30) from the true sun-moon elongation.
+        // illumination.phase is in degrees: -180 at new moon, 0 at full moon, +180 at next new moon.
+        // Elongation = (moon_longitude - sun_longitude) mod 360, which is 0 at new moon and 180 at full.
+        // Each tithi spans 12 degrees of elongation.
+        val elongation = ((illumination.phase + 180.0) % 360.0 + 360.0) % 360.0
+        val lunarDay = (floor(elongation / 12.0).toInt() + 1).coerceIn(1, 30)
         val tithi = calculateTithi(lunarDay)
 
         // Convert next phase times to LocalDate
